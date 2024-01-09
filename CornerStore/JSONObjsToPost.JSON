@@ -1,0 +1,32 @@
+{
+    "cashiers":
+    [
+        {
+            "firstName": "Lucas",
+            "lastName": "Joneao"
+        }
+    ],
+
+    "products":
+    [
+        {
+            "productName": "Bowl",
+            "price": 10.99,
+            "brand": "NIKE",
+            "categoryId": 1
+        }
+    ],
+
+    "orders":
+    [
+        {
+            "cashierId": 7,
+            "orderProducts": [
+                {
+                    "productId": 1,
+                    "quantity": 10
+                }
+            ]
+        }
+    ]
+}
