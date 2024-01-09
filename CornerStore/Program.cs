@@ -2,6 +2,7 @@ using CornerStore.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Http.Json;
+using CornerStore.Models.DTOs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,8 +33,70 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-//endpoints go here
+//=================================================================================================================================================================================================
+//=====================================================================================Endpoints===================================================================================================
+//=================================================================================================================================================================================================
 
+                                                                                                                                //cashiers
+                                                                                                                                    //GETs
+                                                                                                                                        //a single cashier
+app.MapGet("/cashier/{id}", (int id, CornerStoreDbContext db) => 
+{
+    Cashier foundCashier = db.Cashiers
+        .Include(c => c.Orders)
+        .ThenInclude(c => c.OrderProducts)
+        .ThenInclude(c => c.Product)
+        .FirstOrDefault(c => c.Id == id);
+
+    if(foundCashier == null)
+    {
+        return Results.NotFound();
+    }
+
+    var result = new CashierDTO
+    {
+        Id = foundCashier.Id,
+        FirstName = foundCashier.FirstName,
+        LastName = foundCashier.LastName,
+        Orders = foundCashier.Orders
+            .Select(o => new OrderDTO
+            {
+                Id = o.Id,
+                CashierId = o.CashierId,
+                Cashier = null,
+                OrderProducts = o.OrderProducts
+                    .Select(op => new OrderProductDTO
+                    {
+                        Id = op.Id,
+                        OrderId = op.OrderId,
+                        ProductId = op.ProductId,
+                        Product = new ProductDTO 
+                        {
+                            Id = op.Product.Id,
+                            Price = op.Product.Price,
+                            ProductName = op.Product.ProductName,
+                            Brand = op.Product.Brand,
+                            CategoryId = op.Product.CategoryId,
+                            Category = null
+                        },
+                        Quantity = op.Quantity,
+                        Order = null,
+                    }).ToList(),
+                PaidOnDate = o.PaidOnDate
+            }).ToList(),
+    };
+
+    return Results.Ok(result);
+});
+                                                                                                                                //products
+                                                                                                                                    //GETs
+
+                                                                                                                                //orders
+                                                                                                                                    //GETs
+
+//=================================================================================================================================================================================================
+//========================================================================================Run======================================================================================================
+//=================================================================================================================================================================================================
 app.Run();
 
 //don't move or change this!
